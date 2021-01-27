@@ -62,10 +62,12 @@ async function commonBeforeAll() {
   });
 }
 
+// Define a statement block that are execute together 
 async function commonBeforeEach() {
   await db.query("BEGIN");
 }
 
+// It will revert any change performed by a transaction 
 async function commonAfterEach() {
   await db.query("ROLLBACK");
 }
