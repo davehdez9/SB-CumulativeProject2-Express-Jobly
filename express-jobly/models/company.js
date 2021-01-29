@@ -44,21 +44,63 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
+  /** Find all companies and filtering optional criteria
    *
+   * filtering:
+   * - name: case-insensitive
+   * - minEmployees: have at least that number of employees
+   * - maxEmployees: have no more than that number of employees
+   * 
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
-    return companiesRes.rows;
+  static async findAll(filtering = {}) {
+    // Statement to select the data from companies tables
+    let companiesRes = `SELECT handle,
+                               name,
+                               description,
+                               num_employees AS "numEmployees",
+                              logo_url AS "logoUrl"
+                        FROM companies`;
+
+    let expression = [];
+    let query = [];
+
+    // Optional filtering criteria that can be passed in the query string
+    const { name, minEmployees, maxEmployees} = filtering;
+
+    // If name is passed, it will push to the statement and query variables to be add to the original statement
+    if(name){
+      query.push(`%${name}%`)
+      expression.push(`name ILIKE $${query.length}`)
+    }
+
+    //If minEmployees is greater than maxEmployees - Respond 404 with the appropriate message.
+    if( minEmployees > maxEmployees ){
+      throw new BadRequestError("minEmployees cannot be greater that maxEmployees")
+    }
+
+    // If minEmployees is passed, it will push to the statement and query variables to be add to the original statement
+    if( minEmployees !== undefined ){
+      query.push(minEmployees)
+      expression.push(`num_employees >= $${query.length}`)
+    }
+
+    // If maxEmployees is passed, it will push to the statement and query variables to be add to the original statement
+    if( maxEmployees !== undefined ){
+      query.push(maxEmployees)
+      expression.push(`num_employees <= $${query.length}`)
+    }
+
+    // If there any new expression - it will add to the original statement to generate the filtering 
+    if( expression.length > 0 ){
+      companiesRes += " WHERE " + expression.join(" AND ")
+    }
+
+    // 
+    companiesRes += " ORDER BY name"
+    const result = await db.query(companiesRes, query)
+    return result.rows;
   }
 
   /** Given a company handle, return data about company.
@@ -140,6 +182,14 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
   }
+
+  
+  /**
+   * name: SELECT DISTINCT name FROM companies WHERE name iLIKE 'w%';
+   *  - Filter by company name, case-insensitive
+   * 
+   * minEmployees: 
+   */
 }
 
 
