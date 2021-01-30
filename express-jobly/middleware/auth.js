@@ -61,8 +61,28 @@ function ensureAdmin(req, res, next){
   }
 }
 
+/**
+ * Middleware admin-user
+ * 
+ * It will be use to help validate if it's a user-admin.
+ */
+
+function ensureAdminOrUser(req, res, next){
+  try {
+    const user = res.locals.user
+    
+    if(!(user && (user.isAdmin || user.username === req.params.username))){
+      throw new UnauthorizedError
+    }
+    return next()
+  } catch (error) {
+    return next(error)
+  }
+}
+
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureAdminOrUser
 };

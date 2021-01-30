@@ -6,6 +6,7 @@ const {
   authenticateJWT,
   ensureLoggedIn,
   ensureAdmin,
+  ensureAdminOrUser
 } = require("./auth");
 
 
@@ -97,5 +98,27 @@ describe("ensureAdmin", function(){
       expect(err).toBeTruthy()
     }
     ensureAdmin(req, res, next)
+  })
+})
+
+describe("ensureAdminOrUser", function(){
+  test("Midd works", function(){
+    expect.assertions(1)
+    const req = {  params: { username: "test" } }
+    const res = { locals: { user: { username: "admin", isAdmin: true } } }
+    const next = function(err){
+      expect(err).toBeFalsy()
+    } 
+    ensureAdminOrUser(req, res, next)
+  })
+
+  test("unauth", function(){
+    expect.assertions(1)
+    const req = { params: { username: "Mistake" } }
+    const res = { locals: { user: { username: "test", isAdmin: false } } }
+    const next = function(err){
+      expect(err instanceof UnauthorizedError).toBeTruthy()
+    }
+    ensureAdminOrUser(req, res, next)
   })
 })
