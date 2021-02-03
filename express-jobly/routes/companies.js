@@ -55,7 +55,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 router.get("/", async function (req, res, next) {
   const query = req.query
 
-  // Convert the the querystring into a number that it is going to be validated on the schema as a Number 
+  // Convert the the querystring into a integer that it is going to be validated on the schema as a Number 
   if(query.minEmployees !== undefined){
     query.minEmployees = +query.minEmployees
   }

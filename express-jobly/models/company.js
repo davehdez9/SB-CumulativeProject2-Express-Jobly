@@ -97,7 +97,6 @@ class Company {
       companiesRes += " WHERE " + expression.join(" AND ")
     }
 
-    // 
     companiesRes += " ORDER BY name"
     const result = await db.query(companiesRes, query)
     return result.rows;
@@ -182,15 +181,5 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
   }
-
-  
-  /**
-   * name: SELECT DISTINCT name FROM companies WHERE name iLIKE 'w%';
-   *  - Filter by company name, case-insensitive
-   * 
-   * minEmployees: 
-   */
 }
-
-
 module.exports = Company;

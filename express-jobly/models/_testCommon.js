@@ -22,7 +22,7 @@ async function commonBeforeAll() {
     VALUES ('Job1', 100, '0.1', 'c1'),
            ('Job2', 200, '0.2', 'c1'),
            ('Job3', 300, '0', 'c1'),
-           ('Job4', 400, '0', 'c1')
+           ('Job4', NULL, NULL, 'c1')
     RETURNING id`)
   idJobs.splice(0,0, ...jobsList.rows.map(r => r.id))
 

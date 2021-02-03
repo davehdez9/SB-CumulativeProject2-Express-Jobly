@@ -3,6 +3,7 @@
 const request = require("supertest")
 
 const app = require("../app")
+const db = require("../db")
 
 const {
     commonBeforeAll,
@@ -95,6 +96,51 @@ describe("GET /companies",function () {
             ]
         })
     })
+
+    test('should filter', async () => {
+        const response = await request(app)
+            .get("/jobs")
+            .query({ hasEquity: true})
+        expect(response.body).toEqual({
+            jobs: [
+                {
+                    id: expect.any(Number),
+                    title: "J1",
+                    salary: 1,
+                    equity: "0.1",
+                    companyHandle: "c1",
+                    companyName: "C1"
+                },
+                {
+                    id: expect.any(Number),
+                    title: "J2",
+                    salary: 2,
+                    equity: "0.2",
+                    companyHandle: "c1",
+                    companyName: "C1"
+                }
+            ]
+        })
+    })
+    
+    test('should filter 2 parameters', async () => {
+        const response = await request(app)
+            .get(`/jobs`)
+            .query({ minSalary: 2, title: "3"})
+        expect(response.body).toEqual({
+            jobs: [
+                {
+                    id: expect.any(Number),
+                    title: "J3",
+                    salary: 3,
+                    equity: null,
+                    companyHandle: "c1",
+                    companyName: "C1",
+                }
+            ]
+        })
+    })
+    
     
 })
 

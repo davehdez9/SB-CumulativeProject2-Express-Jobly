@@ -34,21 +34,60 @@ class Job {
     /**
      * Find all jobs
      * 
+     * Filtering:
+     * - title: Should be case-insensitive, matches any part of string search.
+     * - minSalary: Filter to job with at least that salary.
+     * - hasEquity:
+     *  - if true, filter to jobs that provide a non zero amount of equity.
+     *  - if false, or not include in the filtering -> list all jobs regardless of equity.
+     * 
      * return [ { id, title, salary, equity, companyHandle, companyName }, ... ]
-     */
+    */
 
-    static async findAll(){   
-        const jobsResults = await db.query(
-            `SELECT j.id,
-                    j.title,
-                    j.salary,
-                    j.equity,
-                    j.company_handle AS "companyHandle",
-                    c.name AS "companyName"
-             FROM jobs j
-             LEFT JOIN companies AS c ON c.handle = j.company_handle
-             ORDER BY title`)
-        return jobsResults.rows
+    static async findAll(filtering = {}){
+        //Statements to select the data from the jobs tables
+        let jobsQuery = `SELECT j.id,
+                                  j.title,
+                                  j.salary,
+                                  j.equity,
+                                  j.company_handle AS "companyHandle",
+                                  c.name AS "companyName"
+                           FROM jobs j
+                            LEFT JOIN companies AS c ON c.handle = j.company_handle`;
+
+        let expression = []
+        let query = []
+        
+        //Optional filtering criteria that can be passed in the query string 
+        const { title, minSalary, hasEquity  } = filtering
+
+        // If title is passed, it will push to the statement and query variables
+        if(title !== undefined){
+            query.push(`%${title}%`)
+            expression.push(`title ILIKE $${query.length}`)
+        }
+
+        // If minEmployees is passed - it will push to the statements and query variables
+        if(minSalary !== undefined){
+            query.push(minSalary)
+            expression.push(`salary >= $${query.length}`)
+        }
+
+        // if has equity -> push tot he statement and query variables
+        // if has not equity -> Return all list jobs of equity
+        if(hasEquity === true){
+            expression.push(`equity > 0`)
+        } 
+
+        // Add any new expression to the original statement to generate the correct filter
+        if(expression.length > 0){
+            jobsQuery += " WHERE " + expression.join(" AND ")
+        }
+
+        // Complete the query and return the result
+        jobsQuery += " ORDER BY title"
+        const result  = await db.query(jobsQuery, query)
+        return result.rows
     }
 
     /**

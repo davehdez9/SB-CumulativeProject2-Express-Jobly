@@ -12,6 +12,7 @@ const Job = require("../models/jobs")
 // Schemas
 const jobNewSchema = require("../schemas/jobNew.json")
 const jobUpdateSchema = require("../schemas/jobUpdate.json")
+const jobSearchSchema = require("../schemas/jobSearch.json")
 
 const router = new express.Router()
 
@@ -44,12 +45,34 @@ router.post("/", ensureAdmin, async function(req, res, next){
  * GET / =>
  *  { jobs: [ { id, title, salary, equity, company_handle }, ...] }
  * 
+ * Can filter on provide search filters:
+ * - title
+ * - minSalary
+ * - hasEquity
+ * 
  * Authorization Required: None
 */
 
 router.get("/", async function(req, res, next) {
+    const query  = req.query
+
+    //Convert the queryString into an integer to be validate on the schema as a Number
+    if(query.minSalary !== undefined){
+        query.minSalary = +query.minSalary
+    }
+    query.hasEquity = query.hasEquity === 'true'    
+
     try {
-        const jobs = await Job.findAll()
+        // The validator check if user input is valid against schema
+        const validator = jsonschema.validate(query, jobSearchSchema)
+
+        //If validator is not valid -> Generate an error
+        if(!validator.valid){
+            const error = validator.errors.map(e => e.stack)
+            throw new BadRequestError(error)
+        }
+
+        const jobs = await Job.findAll(query)
         return res.json({ jobs })
     } catch (error) {
         return next(error)

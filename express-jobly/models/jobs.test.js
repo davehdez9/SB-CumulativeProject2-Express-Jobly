@@ -2,7 +2,6 @@
 
 const db =  require("../db")
 const { BadRequestError, NotFoundError } = require("../expressError")
-const { findAll, update } = require("./jobs")
 const Job = require("./jobs")
 const {
     commonBeforeAll,
@@ -38,7 +37,7 @@ describe("Create/add new job", function(){
 /******* Find All */
 
 describe("find all jobs", function(){
-    test("find all jobs", async function(){
+    test("find all jobs: no filter", async function(){
         let jobs = await Job.findAll()
         expect(jobs).toEqual([
             {
@@ -68,13 +67,78 @@ describe("find all jobs", function(){
             {
                 id: idJobs[3],
                 title: "Job4",
-                salary: 400,
-                equity: "0",
+                salary: null,
+                equity: null,
                 companyHandle: 'c1',
                 companyName: "C1"
             },
         ])
     })
+
+    test('should filter by title ', async () => {
+        let job = await Job.findAll({ title: "ob1" })
+        expect(job).toEqual([
+            {
+                id: idJobs[0],
+                title: "Job1",
+                salary: 100,
+                equity: "0.1",
+                companyHandle: 'c1',
+                companyName: "C1"
+            }
+        ])
+    })
+
+    test('should filter by minSalary', async () => {
+        let job = await Job.findAll({ minSalary: 250 })
+        expect(job).toEqual([
+            {
+                id: idJobs[2],
+                title: "Job3",
+                salary: 300,
+                equity: "0",
+                companyHandle: 'c1',
+                companyName: "C1"
+            }
+        ])
+    })
+    
+    test('should filter by equity', async () => {
+        let jobs = await Job.findAll({ hasEquity: true })
+        expect(jobs).toEqual([
+            {
+                id: idJobs[0],
+                title: "Job1",
+                salary: 100,
+                equity: "0.1",
+                companyHandle: 'c1',
+                companyName: "C1"
+            },
+            {
+                id: idJobs[1],
+                title: "Job2",
+                salary: 200,
+                equity: "0.2",
+                companyHandle: 'c1',
+                companyName: "C1"
+            }
+        ])
+    })
+    
+    test('should works with minSalary and equity', async () => {
+        let jobs = await Job.findAll({ minSalary: 150, hasEquity: true })
+        expect(jobs).toEqual([
+            {
+                id: idJobs[1],
+                title: "Job2",
+                salary: 200,
+                equity: "0.2",
+                companyHandle: "c1",
+                companyName: "C1",
+            }
+        ])
+    })
+    
 })
 
 /******* Get */
