@@ -70,6 +70,8 @@ async function commonBeforeAll() {
     password: "password3",
     isAdmin: false,
   });
+
+  await User.applyJob("u1", jobIdTest[0])
 }
 
 // Define a statement block that are execute together 

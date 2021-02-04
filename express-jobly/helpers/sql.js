@@ -11,7 +11,6 @@ const { BadRequestError } = require("../expressError");
 
 
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
-  debugger
   // Return an array of the keys from the dataToUpdate Object 
   const keys = Object.keys(dataToUpdate);
   // Throw an error if the dataToUpdate is empty
