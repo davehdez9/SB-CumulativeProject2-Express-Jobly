@@ -139,11 +139,13 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
+    // Select the job_id from applications base on the username 
     const userApplicationResponse = await db.query(
       `SELECT a.job_id
        FROM applications AS a
        WHERE a.username = $1`, [username])
     
+    // finalize query and return 
     user.applications = userApplicationResponse.rows.map(a => a.job_id)
     return user
   }
@@ -211,9 +213,11 @@ class User {
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
 
-  /** Apply for a jon 
-   *  - username
-   *  - jobId
+  /** Apply for a job
+   *  - Update tge database 
+   * 
+   *  - username: applying for a job
+   *  - jobId : job id 
    */
 
    static async applyJob(username, jobId){
@@ -236,7 +240,7 @@ class User {
 
     // Return a NotFoundError if user is not found
     if(!user) throw new NotFoundError(`Not Found: ${username}`)
-
+    
     await db.query(
       `INSERT INTO applications (job_id, username)
        VALUES ($1, $2)`,

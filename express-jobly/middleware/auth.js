@@ -65,6 +65,8 @@ function ensureAdmin(req, res, next){
  * Middleware admin-user
  * 
  * It will be use to help validate if it's a user-admin.
+ * 
+ * if not - raise an UnauthorizedError
  */
 
 function ensureAdminOrUser(req, res, next){

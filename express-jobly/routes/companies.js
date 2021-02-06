@@ -6,7 +6,6 @@ const jsonschema = require("jsonschema");
 const express = require("express");
 
 const { BadRequestError } = require("../expressError");
-const { ensureLoggedIn } = require("../middleware/auth");
 const { ensureAdmin } = require("../middleware/auth")
 const Company = require("../models/company");
 
@@ -47,7 +46,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
  * Can filter on provided search filters:
  * - minEmployees
  * - maxEmployees
- * - nameLike (will find case-insensitive, partial matches)
+ * - name (will find case-insensitive, partial matches)
  *
  * Authorization required: none
  */
@@ -67,7 +66,7 @@ router.get("/", async function (req, res, next) {
     //The validator checks if user input is valid against schema
     const validate = jsonschema.validate(query, companyFilteringSchema)
 
-    //if the validator is not valid - generate an error 
+    //if the validator is not valid - generate an BadRequestError
     if(!validate.valid){
       const error = validate.errors.map(e => e.stack)
       throw new BadRequestError(error)
@@ -139,4 +138,3 @@ router.delete("/:handle", ensureAdmin, async function (req, res, next) {
 
 
 module.exports = router;
-

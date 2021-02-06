@@ -1,8 +1,7 @@
 const { BadRequestError } = require("../expressError");
 
-// THIS NEEDS SOME GREAT DOCUMENTATION.
 /**
- * It will help to SET the data for an UPDATE statement
+ * It will help to SET the data for an  SQL UPDATE statement
  * 
  * @param {Array} dataToUpdate {firstName: 'Aliya', age: 32}
  * @param {Object} jsToSql { firstName: "first_name",lastName: "last_name", ..} -> provide fields from the database
@@ -13,6 +12,7 @@ const { BadRequestError } = require("../expressError");
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   // Return an array of the keys from the dataToUpdate Object 
   const keys = Object.keys(dataToUpdate);
+  
   // Throw an error if the dataToUpdate is empty
   if (keys.length === 0) throw new BadRequestError("No data");
 

@@ -9,7 +9,7 @@ const { sqlForPartialUpdate } = require("../helpers/sql")
 class Job {
 
     /**
-     * Crate a Job  - return new job data
+     * Create a Job  - return new job data
      * 
      * data { title, salary, equity, companyHandle }
      * 
@@ -113,6 +113,7 @@ class Job {
 
         if (!job) throw new NotFoundError(`Not job found: ${id}`)
 
+        // Select the company relate with the Job 
         const companiesResponse = await db.query(
             `SELECT handle,
                     name,
@@ -122,6 +123,7 @@ class Job {
              FROM companies
              WHERE handle = $1`, [job.companyHandle])
 
+        // Complete the query and return the result
         delete job.companyHandle
         job.company = companiesResponse.rows[0]
 
@@ -141,6 +143,7 @@ class Job {
      */
 
     static async update(id, data) {
+        // User of helper function that will help to SET the SQL statement 
         const { setCols, values } = sqlForPartialUpdate(
             data,
             {})

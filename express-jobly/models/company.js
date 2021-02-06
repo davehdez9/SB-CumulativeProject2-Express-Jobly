@@ -25,7 +25,8 @@ class Company {
 
     if (duplicateCheck.rows[0])
       throw new BadRequestError(`Duplicate company: ${handle}`);
-
+    
+      
     const result = await db.query(
           `INSERT INTO companies
            (handle, name, description, num_employees, logo_url)
@@ -97,6 +98,7 @@ class Company {
       companiesRes += " WHERE " + expression.join(" AND ")
     }
 
+    // Finalize the query and return the result
     companiesRes += " ORDER BY name"
     const result = await db.query(companiesRes, query)
     return result.rows;
@@ -125,6 +127,7 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 
+    // Select the job that is relate with the company
     const jobResponse = await db.query(
       `SELECT id,
               title,
@@ -134,6 +137,7 @@ class Company {
        WHERE company_handle =$1`, [handle]
     )
     
+    // Finalize the query and return the result
     company.jobs = jobResponse.rows
     return company;
   }
@@ -151,6 +155,7 @@ class Company {
    */
 
   static async update(handle, data) {
+    // Use the helper that will SET the data for the UPDATE statement
     const { setCols, values } = sqlForPartialUpdate(
         data,
         {

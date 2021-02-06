@@ -93,6 +93,7 @@ router.patch("/:username", ensureAdminOrUser, async function (req, res, next) {
     const validator = jsonschema.validate(req.body, userUpdateSchema);
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);
+      console.log(errs)
       throw new BadRequestError(errs);
     }
 
