@@ -8,6 +8,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  idJobs,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -85,6 +86,85 @@ describe("findAll", function () {
       },
     ]);
   });
+
+  test("filter by name", async function(){
+    let companies = await Company.findAll({name: "c3"})
+    expect(companies).toEqual([ 
+      {
+        handle: "c3",
+        name: "C3",
+        description: "Desc3",
+        numEmployees: 3,
+        logoUrl: "http://c3.img" 
+      }
+    ])
+  })
+
+  test("filter min employees", async function(){
+    let companies = await Company.findAll({ minEmployees: 2 })
+    expect(companies).toEqual([
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img"
+      },
+      {
+        handle: "c3",
+        name: "C3",
+        description: "Desc3",
+        numEmployees: 3,
+        logoUrl: "http://c3.img"
+      },
+      
+    ])
+  })
+
+  test("filter max employees", async function(){
+    let companies = await Company.findAll({ maxEmployees: 2 })
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img"
+      },
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img"
+      },
+      
+    ])
+  })
+
+  test("min and max employees", async function(){
+    let companies = await Company.findAll(
+      {minEmployees: 1, maxEmployees: 1})
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img"
+      }
+    ])
+  })
+
+  test("request if min > max", async function(){
+    try {
+      await Company.findAll({ minEmployees:20, maxEmployees: 1 })
+    
+    } catch (error) {
+      expect(error.message).toBe('minEmployees cannot be greater that maxEmployees')
+    }
+  })
+
 });
 
 /************************************** get */
@@ -98,6 +178,12 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [
+        { id: idJobs[0], title: "Job1", salary: 100, equity: "0.1"},
+        { id: idJobs[1], title: "Job2", salary: 200, equity: "0.2"},
+        { id: idJobs[2], title: "Job3", salary: 300, equity: "0"},
+        { id: idJobs[3], title: "Job4", salary: null, equity: null}
+      ]
     });
   });
 

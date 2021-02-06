@@ -5,6 +5,8 @@ const { UnauthorizedError } = require("../expressError");
 const {
   authenticateJWT,
   ensureLoggedIn,
+  ensureAdmin,
+  ensureAdminOrUser
 } = require("./auth");
 
 
@@ -76,3 +78,47 @@ describe("ensureLoggedIn", function () {
     ensureLoggedIn(req, res, next);
   });
 });
+
+describe("ensureAdmin", function(){
+  test("middleware works", function(){
+    expect.assertions(1)
+    const req = {}
+    const res = { locals: { user: { username: "test", isAdmin: true } } }
+    const next = function(err) {
+      expect(err).toBeFalsy()
+    }
+    ensureAdmin(req, res, next)
+  })
+
+  test("Unauthorized admim", function(){
+    expect.assertions(1)
+    const req = {}
+    const res = { locals: { user: { username: "test", isAdmin: false } } }
+    const next = function(err) {
+      expect(err).toBeTruthy()
+    }
+    ensureAdmin(req, res, next)
+  })
+})
+
+describe("ensureAdminOrUser", function(){
+  test("Midd works", function(){
+    expect.assertions(1)
+    const req = {  params: { username: "test" } }
+    const res = { locals: { user: { username: "admin", isAdmin: true } } }
+    const next = function(err){
+      expect(err).toBeFalsy()
+    } 
+    ensureAdminOrUser(req, res, next)
+  })
+
+  test("unauth", function(){
+    expect.assertions(1)
+    const req = { params: { username: "Mistake" } }
+    const res = { locals: { user: { username: "test", isAdmin: false } } }
+    const next = function(err){
+      expect(err instanceof UnauthorizedError).toBeTruthy()
+    }
+    ensureAdminOrUser(req, res, next)
+  })
+})

@@ -35,6 +35,7 @@ function authenticateJWT(req, res, next) {
 
 function ensureLoggedIn(req, res, next) {
   try {
+    console.log(`console: `, res.locals)
     if (!res.locals.user) throw new UnauthorizedError();
     return next();
   } catch (err) {
@@ -42,8 +43,48 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+/**
+ * Middleware when someone logged in as an admin
+ * 
+ * if not admin, have an error as Unauthorized
+ */
+
+function ensureAdmin(req, res, next){
+  try {
+    //If the response does not contain an user or admin - throw unauthorized access 
+    if(!res.locals.user || !res.locals.user.isAdmin){
+      throw new UnauthorizedError()
+    }
+    return next()
+  } catch (error) {
+    return next(error)
+  }
+}
+
+/**
+ * Middleware admin-user
+ * 
+ * It will be use to help validate if it's a user-admin.
+ * 
+ * if not - raise an UnauthorizedError
+ */
+
+function ensureAdminOrUser(req, res, next){
+  try {
+    const user = res.locals.user
+    
+    if(!(user && (user.isAdmin || user.username === req.params.username))){
+      throw new UnauthorizedError
+    }
+    return next()
+  } catch (error) {
+    return next(error)
+  }
+}
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  ensureAdmin,
+  ensureAdminOrUser
 };

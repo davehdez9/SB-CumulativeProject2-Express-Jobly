@@ -1,5 +1,7 @@
 "use strict";
 
+/** Server for jobly app */
+
 const app = require("./app");
 const { PORT } = require("./config");
 
